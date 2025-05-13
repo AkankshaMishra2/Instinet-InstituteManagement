@@ -1,0 +1,62 @@
+<%- include('partials/header') %>
+<%- include('partials/sidebar') %>
+
+<div class="container mt-5">
+    <% if (success && success.length > 0) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <% } %>
+    
+    <% if (error && error.length > 0) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <% } %>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Announcements</h2>
+        <% if (user.role === 'staff') { %>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createAnnouncementModal">
+                <i class="fas fa-plus"></i> Create Announcement
+            </button>
+        <% } %>
+    </div>
+
+    <div class="row">
+        <% if (announcements && announcements.length > 0) { %>
+            <% announcements.forEach(announcement => { %>
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= announcement.title %></h5>
+                            <p class="card-text"><%= announcement.message.substring(0, 150) %>...</p>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <small class="text-muted">
+                                    By <%= announcement.createdBy.firstName %> <%= announcement.createdBy.lastName %> 
+                                    (<%= announcement.createdBy.role %>)
+                                </small>
+                                <a href="/announcements/<%= announcement._id %>" class="btn btn-outline-primary btn-sm">
+                                    Read More
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-footer text-muted">
+                            <%= new Date(announcement.createdAt).toLocaleDateString() %>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No announcements available at this time.
+                </div>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<%- include('partials/footer') %> 

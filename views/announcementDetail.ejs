@@ -1,0 +1,12 @@
+<%- include('partials/header') %>
+<%- include('partials/sidebar') %>
+<div class="container mt-5">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h3><%= announcement.title %></h3>
+      <p><%= announcement.message %></p>
+      <div class="text-muted small">By <%= announcement.createdBy.name %> (<%= announcement.createdBy.role %>) on <%= announcement.createdAt.toLocaleString() %></div>
+      <a href="/announcements" class="btn btn-link mt-3">Back to Announcements</a>
+    </div>
+  </div>
+</div>

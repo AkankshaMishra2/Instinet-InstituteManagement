@@ -22,7 +22,15 @@ const authenticateUser = async (req, res, next) => {
 
 // Middleware to check role
 const isAdmin = (req, res, next) => req.user?.role === 'admin' ? next() : res.status(403).render('error', { title: 'Access Denied', message: 'You do not have permission to access this resource.', error: null });
-const isStaff = (req, res, next) => ['staff', 'admin'].includes(req.user?.role) ? next() : res.status(403).render('error', { title: 'Access Denied', message: 'You do not have permission to access this resource.', error: null });
+const isStaff = (req, res, next) => {
+    console.log('Checking staff role:', req.user);
+    if (req.user && req.user.role === 'staff') {
+        next();
+    } else {
+        req.flash('error', 'Access denied. Staff only.');
+        res.redirect('/login');
+    }
+};
 const isStudent = (req, res, next) => req.user?.role === 'student' ? next() : res.status(403).render('error', { title: 'Access Denied', message: 'You do not have permission to access this resource.', error: null });
 
 module.exports = { authenticateUser, isAdmin, isStaff, isStudent };

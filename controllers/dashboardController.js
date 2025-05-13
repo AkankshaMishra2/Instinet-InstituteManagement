@@ -7,21 +7,27 @@ exports.getAdminDashboard = async (req, res) => {
 };
 
 exports.getStaffDashboard = async (req, res) => {
-  // Fetch all students
-  const students = await User.find({ role: 'student' }).lean();
-  // For each student, fetch their department courses
-  for (let student of students) {
-    if (student.studentDetails && student.studentDetails.department) {
-      student.courses = await Course.find({ department: student.studentDetails.department }).lean();
-    } else {
-      student.courses = [];
+  try {
+    const students = await User.find({ role: 'student' }).lean();
+    for (let student of students) {
+      if (student.studentDetails && student.studentDetails.department) {
+        student.courses = await Course.find({ department: student.studentDetails.department }).lean();
+      } else {
+        student.courses = [];
+      }
     }
+    res.render('staffDashboard', {
+      title: 'Staff Dashboard',
+      user: req.user,
+      students,
+      error: req.flash('error'),
+      success: req.flash('success')
+    });
+  } catch (err) {
+    console.error('Error in getStaffDashboard:', err);
+    req.flash('error', 'Error loading dashboard');
+    res.redirect('/login');
   }
-  res.render('staffDashboard', {
-    title: 'Staff Dashboard',
-    user: req.user,
-    students
-  });
 };
 
 exports.getStudentDashboard = async (req, res) => {

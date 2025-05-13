@@ -14,9 +14,12 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/yourdbname')
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+mongoose.connect(process.env.MONGODB_URI || 'your_mongodb_uri', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('MongoDB connected successfully'))
+.catch(err => console.error('MongoDB connection error:', err));
 
 // Middleware
 app.use(morgan('dev'));
@@ -69,6 +72,12 @@ app.use('/', profileRoutes);
 app.use('/api', apiRoutes);
 app.use('/announcements', announcementRoutes);
 
+// Debug middleware
+app.use((req, res, next) => {
+    console.log('Request received:', req.method, req.url);
+    next();
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   res.status(err.status || 500).render('error', {
@@ -81,7 +90,7 @@ app.use((err, req, res, next) => {
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).render('error', {
+  res.status(404).render('error', { 
     title: '404 - Page Not Found',
     status: 404,
     message: 'The page you are looking for does not exist.',

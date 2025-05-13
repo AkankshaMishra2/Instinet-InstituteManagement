@@ -2,24 +2,62 @@ const Announcement = require('../models/Announcement');
 
 exports.createAnnouncement = async (req, res) => {
   try {
-    const { title, content } = req.body;
-    await Announcement.create({
-      title,
-      content,
-      createdBy: req.user._id
-    });
-    res.redirect('/staffDashboard'); // or wherever you want to redirect
+      console.log('Creating announcement:', req.body); // Debug log
+      const { title, message } = req.body;
+      
+      if (!title || !message) {
+          req.flash('error', 'Title and message are required');
+          return res.redirect('/staffDashboard');
+      }
+
+      const announcement = await Announcement.create({
+          title,
+          message,
+          createdBy: req.user._id
+      });
+      
+      console.log('Announcement created:', announcement); // Debug log
+      req.flash('success', 'Announcement created successfully!');
+      res.redirect('/staffDashboard');
   } catch (err) {
-    res.render('createAnnouncement', { error: 'Failed to create announcement', user: req.user });
+      console.error('Error creating announcement:', err);
+      req.flash('error', 'Failed to create announcement');
+      res.redirect('/staffDashboard');
+  }
+};
+exports.getAllAnnouncements = async (req, res) => {
+  try {
+    const announcements = await Announcement.find()
+      .sort({ createdAt: -1 })
+      .populate('createdBy', 'firstName lastName role');
+    res.render('announcements', { 
+      user: req.user, 
+      announcements, 
+      title: 'Announcements',
+      success: req.flash('success'),
+      error: req.flash('error')
+    });
+  } catch (err) {
+    req.flash('error', 'Failed to fetch announcements');
+    res.redirect('/staffDashboard');
   }
 };
 
-exports.getAllAnnouncements = async (req, res) => {
-  const announcements = await Announcement.find().sort({ createdAt: -1 }).populate('createdBy', 'firstName lastName');
-  res.render('announcements', { user: req.user, announcements, title: 'Announcements' });
-};
-
 exports.getAnnouncement = async (req, res) => {
-  const announcement = await Announcement.findById(req.params.id).populate('createdBy', 'firstName lastName');
-  res.render('announcementDetail', { user: req.user, announcement, title: announcement.title });
+  try {
+    const announcement = await Announcement.findById(req.params.id)
+      .populate('createdBy', 'firstName lastName role');
+    if (!announcement) {
+      req.flash('error', 'Announcement not found');
+      return res.redirect('/announcements');
+    }
+    res.render('announcementDetail', { 
+      user: req.user, 
+      announcement, 
+      title: announcement.title 
+    });
+  } catch (err) {
+    req.flash('error', 'Failed to fetch announcement');
+    res.redirect('/announcements');
+  }
 };

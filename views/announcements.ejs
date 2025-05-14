@@ -1,7 +1,7 @@
 <%- include('partials/header') %>
 <%- include('partials/sidebar') %>
 
-<div class="container mt-5">
+<div class="container mt-5" style="margin-left: 280px; width: calc(100% - 280px);">
     <% if (success && success.length > 0) { %>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <%= success %>
@@ -25,10 +25,10 @@
         <% } %>
     </div>
 
-    <div class="row">
+    <div class="row justify-content-center">
         <% if (announcements && announcements.length > 0) { %>
             <% announcements.forEach(announcement => { %>
-                <div class="col-md-6 mb-4">
+                <div class="col-md-6 mb-5">
                     <div class="card shadow-sm h-100">
                         <div class="card-body">
                             <h5 class="card-title"><%= announcement.title %></h5>
@@ -59,4 +59,4 @@
     </div>
 </div>
 
-<%- include('partials/footer') %> 
+<!-- <%- include('partials/footer') %>  -->

@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const router = express.Router();
 const { authenticateUser, isAdmin } = require('../middleware/auth');
+const User = require('../models/User');
 
 // API route to get current user data
 router.get('/current-user', authenticateUser, (req, res) => {
@@ -35,29 +36,14 @@ router.get('/announcements', (req, res) => {
 });
 
 // API route to get users (admin only)
-router.get('/users', authenticateUser, isAdmin, (req, res) => {
-  const usersFilePath = path.join(__dirname, '..', 'users.json');
-  
-  fs.readFile(usersFilePath, 'utf-8', (err, data) => {
-    if (err) {
-      console.error('Error reading user data:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
-
-    try {
-      const users = JSON.parse(data);
-      // Remove passwords from the response
-      const safeUsers = users.map(user => {
-        const { password, ...safeUser } = user;
-        return safeUser;
-      });
-      
-      res.json(safeUsers);
-    } catch (error) {
-      console.error('Error parsing user data:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  });
+router.get('/users', authenticateUser, isAdmin, async (req, res) => {
+  try {
+    const users = await User.find().select('-password');
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 module.exports = router;
